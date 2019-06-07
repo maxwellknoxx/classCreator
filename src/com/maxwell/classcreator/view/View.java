@@ -1,21 +1,93 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.maxwell.classcreator.view;
+
+import com.maxwell.classcreator.control.JsonController;
+import com.maxwell.classcreator.model.Json;
+import javax.swing.JOptionPane;
 
 /**
  *
- * @author Macbook
+ * @author Maxwell Knoxx - 06/2019
  */
 public class View extends javax.swing.JFrame {
+
+    JsonController jsonController = new JsonController();
 
     /**
      * Creates new form view
      */
     public View() {
         initComponents();
+    }
+
+    public String getPath() {
+        return jTextFieldPath.getText();
+    }
+
+    public String getJsonText() {
+        return jTextAreaJson.getText();
+    }
+
+    public Boolean isEntitySelected() {
+        return jCheckBoxEntity.isSelected();
+    }
+
+    public Boolean isModelSelected() {
+        return jCheckBoxModel.isSelected();
+    }
+
+    public Boolean isServiceImplSelected() {
+        return jCheckBoxServiceImpl.isSelected();
+    }
+
+    public Boolean isRepositorySelected() {
+        return jCheckBoxRepository.isSelected();
+    }
+
+    public Boolean validatePath() {
+        if (!jTextFieldPath.getText().isEmpty()) {
+            return true;
+        }
+        showErrorMessage("Please, select a path!");
+        return false;
+    }
+
+    private boolean validateJsonField() {
+        if (!jTextAreaJson.getText().isEmpty()) {
+            return true;
+        }
+        showErrorMessage("Please, fill the Json field");
+        return false;
+    }
+
+    //apply regex
+    private Boolean validateJsonStructure() {
+        if (jTextAreaJson.getText().contains("{") && jTextAreaJson.getText().contains("}")) {
+            return true;
+        }
+        showErrorMessage("The Json structure is wrong!");
+        return false;
+    }
+
+    private void createFiles() {
+        Json json = new Json();
+
+        json.setPath(getPath());
+        json.setText(getJsonText());
+        json.setCreateEntity(isEntitySelected());
+        json.setCreateModel(isModelSelected());
+        json.setCreateServiceImpl(isServiceImplSelected());
+        json.setCreateRepository(isRepositorySelected());
+
+        jsonController.generateFiles(json);
+        showMessage("the files were created!");
+    }
+
+    public void showErrorMessage(String message) {
+        JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    
+    public void showMessage(String message) {
+        JOptionPane.showMessageDialog(null, message, "Success", JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**
@@ -32,13 +104,13 @@ public class View extends javax.swing.JFrame {
         jButtonBrowse = new javax.swing.JButton();
         jLabelJson = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        jTextAreaJson = new javax.swing.JTextArea();
         jCheckBoxEntity = new javax.swing.JCheckBox();
         jCheckBoxModel = new javax.swing.JCheckBox();
         jCheckBoxServiceImpl = new javax.swing.JCheckBox();
         jCheckBoxRepository = new javax.swing.JCheckBox();
         jButtonCreate = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        jLabelName = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -53,18 +125,13 @@ public class View extends javax.swing.JFrame {
         jLabelJson.setText("JSON:");
         getContentPane().add(jLabelJson, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, -1, -1));
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        jTextAreaJson.setColumns(20);
+        jTextAreaJson.setRows(5);
+        jScrollPane1.setViewportView(jTextAreaJson);
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 100, 350, 160));
 
         jCheckBoxEntity.setText("Entity");
-        jCheckBoxEntity.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxEntityActionPerformed(evt);
-            }
-        });
         getContentPane().add(jCheckBoxEntity, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 280, -1, -1));
 
         jCheckBoxModel.setText("Model");
@@ -77,18 +144,29 @@ public class View extends javax.swing.JFrame {
         getContentPane().add(jCheckBoxRepository, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 280, -1, -1));
 
         jButtonCreate.setText("Create");
+        jButtonCreate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCreateActionPerformed(evt);
+            }
+        });
         getContentPane().add(jButtonCreate, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 320, -1, -1));
 
-        jLabel1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        jLabel1.setText("CLASS CREATOR 2000 PLUS");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 20, -1, -1));
+        jLabelName.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabelName.setText("CLASS CREATOR 2000 PLUS");
+        getContentPane().add(jLabelName, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 20, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jCheckBoxEntityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxEntityActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBoxEntityActionPerformed
+    private void jButtonCreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCreateActionPerformed
+        if (validatePath()) {
+            if (validateJsonField()) {
+                if (validateJsonStructure()) {
+                    createFiles();
+                }
+            }
+        }
+    }//GEN-LAST:event_jButtonCreateActionPerformed
 
     /**
      * @param args the command line arguments
@@ -126,7 +204,7 @@ public class View extends javax.swing.JFrame {
                 view.setLocationRelativeTo(null);
                 view.setTitle("Class creator");
                 view.setVisible(true);
-                
+
             }
         });
     }
@@ -138,11 +216,12 @@ public class View extends javax.swing.JFrame {
     private javax.swing.JCheckBox jCheckBoxModel;
     private javax.swing.JCheckBox jCheckBoxRepository;
     private javax.swing.JCheckBox jCheckBoxServiceImpl;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabelJson;
+    private javax.swing.JLabel jLabelName;
     private javax.swing.JLabel jLabelPath;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTextAreaJson;
     private javax.swing.JTextField jTextFieldPath;
     // End of variables declaration//GEN-END:variables
+
 }
