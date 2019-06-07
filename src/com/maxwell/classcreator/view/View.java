@@ -117,6 +117,8 @@ public class View extends javax.swing.JFrame {
 
         jLabelPath.setText("Path: ");
         getContentPane().add(jLabelPath, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, -1, -1));
+
+        jTextFieldPath.setText("/Users/Macbook/Documents");
         getContentPane().add(jTextFieldPath, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 50, 240, -1));
 
         jButtonBrowse.setText("Browse");

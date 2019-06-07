@@ -1,6 +1,9 @@
 package com.maxwell.classcreator.control;
 
 import com.maxwell.classcreator.model.Json;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,9 +15,9 @@ import java.util.List;
 public class JsonController {
 
     /**
-     * 
+     *
      * @param json
-     * @return 
+     * @return
      */
     public Boolean generateFiles(Json json) {
 
@@ -27,6 +30,7 @@ public class JsonController {
             createModel(json);
         }
         if (json.getCreateServiceImpl()) {
+            createService(json);
             createServiceImpl(json);
         }
         if (json.getCreateRepository()) {
@@ -37,9 +41,9 @@ public class JsonController {
     }
 
     /**
-     * 
+     *
      * @param json
-     * @return 
+     * @return
      */
     public Json getJsonFields(Json json) {
         List<String> listFields = new ArrayList<>();
@@ -72,8 +76,8 @@ public class JsonController {
         sb.append(generateClassName(0, json.getClassName()));
         sb.append(generateFields(0, json));
         sb.append(generateGettersAndSetters(json));
-        sb.append(endClass());
-        
+        sb.append(closeCurlyBracket());
+
         return true;
     }
 
@@ -86,7 +90,14 @@ public class JsonController {
     private Boolean createModel(Json json) {
         StringBuilder sb = new StringBuilder();
 
-        return false;
+        sb.append(generateImports(1));
+        sb.append(generateClassAnotation(1, json.getClassName()));
+        sb.append(generateClassName(1, json.getClassName()));
+        sb.append(generateFields(1, json));
+        sb.append(generateGettersAndSetters(json));
+        sb.append(closeCurlyBracket());
+
+        return true;
     }
 
     /**
@@ -98,7 +109,15 @@ public class JsonController {
     private Boolean createRepository(Json json) {
         StringBuilder sb = new StringBuilder();
 
-        return false;
+        String className = json.getClassName();
+
+        sb.append(generateImports(2));
+        sb.append(generateClassAnotation(2, className));
+        sb.append(generateClassName(2, className));
+        sb.append(generateMethods(2, className));
+        sb.append(closeCurlyBracket());
+
+        return true;
     }
 
     /**
@@ -110,7 +129,15 @@ public class JsonController {
     private Boolean createService(Json json) {
         StringBuilder sb = new StringBuilder();
 
-        return false;
+        String className = json.getClassName();
+
+        sb.append(generateImports(3));
+        sb.append(generateClassAnotation(3, className));
+        sb.append(generateClassName(3, className));
+        sb.append(generateMethods(3, className));
+        sb.append(closeCurlyBracket());
+
+        return true;
     }
 
     /**
@@ -122,7 +149,15 @@ public class JsonController {
     private Boolean createServiceImpl(Json json) {
         StringBuilder sb = new StringBuilder();
 
-        return false;
+        String className = json.getClassName();
+
+        sb.append(generateImports(4));
+        sb.append(generateClassAnotation(4, className));
+        sb.append(generateClassName(4, className));
+        sb.append(generateMethods(4, className));
+        sb.append(closeCurlyBracket());
+
+        return true;
     }
 
     /**
@@ -264,17 +299,17 @@ public class JsonController {
     }
 
     /**
-     * 
+     *
      * @param json
-     * @return 
+     * @return
      */
     public String generateGettersAndSetters(Json json) {
         StringBuilder sb = new StringBuilder();
 
         String type;
         String fieldName;
-        
-        for(String field : json.getFields()) {
+
+        for (String field : json.getFields()) {
             type = getFieldType(field);
             fieldName = getFieldName(field);
             sb.append(generateGetters(type, fieldName)).append("\n\n");
@@ -285,27 +320,79 @@ public class JsonController {
     }
 
     /**
-     * 
+     *
+     * @param classType 2 - Repository, 3 - Service, 4 - ServiceImpl
+     * @param className
+     * @return
+     */
+    public String generateMethods(int classType, String className) {
+        StringBuilder sb = new StringBuilder();
+
+        switch (classType) {
+            case 2:
+                sb.append("List<").append(className).append("> findAll();").append("\n\n");
+                sb.append("List<").append(className).append("> findById(Long id);").append("\n\n");
+                break;
+            case 3:
+                sb.append("List<").append(className).append("> findAll();").append("\n\n");
+                sb.append("List<").append(className).append("> findById(Long id);").append("\n\n");
+                sb.append(className).append(" add").append(className).append("(").append(className).append(" ").append(firstLetterLowerCase(className)).append("); \n\n");
+                sb.append(className).append(" update").append(className).append("(").append(className).append(" ").append(firstLetterLowerCase(className)).append("); \n\n");
+                sb.append(className).append(" remove").append(className).append("(Long id); \n\n");
+                break;
+            case 4:
+                sb.append(overrideAnnotation()).append("\n");
+                sb.append("public ").append("List<").append(className).append("> findAll() \\{").append("\n");
+                sb.append("return repository.findAll();").append("\n");
+                sb.append(closeCurlyBracket()).append("\n\n");
+
+                sb.append(overrideAnnotation()).append("\n");
+                sb.append("public List<").append(className).append("> findById(Long id) \\{").append("\n\n");
+                sb.append("return repository.findById(id);").append("\n");
+                sb.append(closeCurlyBracket()).append("\n\n");
+
+                sb.append(overrideAnnotation()).append("\n");
+                sb.append("public ").append(className).append(" add").append(className).append("(").append(className).append(" ").append(firstLetterLowerCase(className)).append(") \\{ \n");
+                sb.append("return repository.save(").append(firstLetterLowerCase(className)).append("); \n");
+                sb.append(closeCurlyBracket()).append("\n\n");
+
+                sb.append(overrideAnnotation()).append("\n");
+                sb.append("public ").append(className).append(" update").append(className).append("(").append(className).append(" ").append(firstLetterLowerCase(className)).append(") \\{ \n");
+                sb.append("return repository.save(").append(firstLetterLowerCase(className)).append("); \n");
+                sb.append(closeCurlyBracket()).append("\n\n");
+
+                sb.append(overrideAnnotation()).append("\n");
+                sb.append("public ").append(className).append(" remove").append(className).append("(Long id) \\{ \n");
+                sb.append("repository.deleteById(id);").append("\n");
+                sb.append(closeCurlyBracket()).append("\n\n");
+                break;
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     *
      * @param field
-     * @return 
+     * @return
      */
     public String getFieldType(String field) {
         return field.split(":\"")[0].replace("\"", "");
     }
 
     /**
-     * 
+     *
      * @param field
-     * @return 
+     * @return
      */
     public String getFieldName(String field) {
         return field.split(":\"")[1].replace("\"", "");
     }
 
     /**
-     * 
+     *
      * @param fieldToFormat
-     * @return 
+     * @return
      */
     public String removeCamelCaseField(String fieldToFormat) {
         String[] fieldSplitted = fieldToFormat.split("(?<=[a-z])(?=[A-Z])");
@@ -316,52 +403,80 @@ public class JsonController {
         fieldFormated = fieldFormated.substring(0, fieldFormated.lastIndexOf("_")) + "" + fieldFormated.substring(fieldFormated.lastIndexOf("_") + 1);
         return fieldFormated;
     }
-    
+
     /**
-     * 
+     *
      * @param type
      * @param fieldName
-     * @return 
+     * @return
      */
-    public String generateGetters(String type, String fieldName){
+    public String generateGetters(String type, String fieldName) {
         StringBuilder sb = new StringBuilder();
-        sb.append("public ").append(type).append(" get").append(firstLetterCamelCase(fieldName)).append("() \\{ ").append("\n");
+        sb.append("public ").append(type).append(" get").append(firstLetterUpperCase(fieldName)).append("() \\{ ").append("\n");
         sb.append("return").append(fieldName).append("; \n");
         sb.append("}");
         return sb.toString();
     }
-    
+
     /**
-     * 
+     *
      * @param type
      * @param fieldName
-     * @return 
+     * @return
      */
     public String generateSetters(String type, String fieldName) {
         StringBuilder sb = new StringBuilder();
-        sb.append("public ").append(type).append(" set").append(firstLetterCamelCase(fieldName)).append("(").append(type).append(" ").append(fieldName).append(") \\{ \n");
+        sb.append("public ").append(type).append(" set").append(firstLetterUpperCase(fieldName)).append("(").append(type).append(" ").append(fieldName).append(") \\{ \n");
         sb.append("this.").append(fieldName).append(" = ").append(fieldName).append("; \n");
         sb.append("}");
         return sb.toString();
     }
-    
+
     /**
-     * 
+     *
      * @param fieldName
-     * @return 
+     * @return
      */
-    public String firstLetterCamelCase(String fieldName) {
+    public String firstLetterUpperCase(String fieldName) {
         fieldName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1).toLowerCase();
         return fieldName;
     }
 
-    public String endClass(){
+    /**
+     *
+     * @param fieldName
+     * @return
+     */
+    public String firstLetterLowerCase(String fieldName) {
+        fieldName = fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1).toUpperCase();
+        return fieldName;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String overrideAnnotation() {
+        return "@Override";
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String closeCurlyBracket() {
         return "}";
     }
-    
-    //private Boolean saveToFile(StringBuilder sb) {
-//
-  //      return false;
-    //}
 
+    public Boolean saveToFile(StringBuilder sb, String path, String className) {
+        try {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(path + "/" + className + ".java"))) {
+                writer.write(sb.toString());
+            }
+            return true;
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return false;
+    }
 }
