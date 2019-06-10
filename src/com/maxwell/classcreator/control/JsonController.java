@@ -29,12 +29,12 @@ public class JsonController {
         if (json.getCreateModel()) {
             createModel(json);
         }
+        if (json.getCreateRepository()) {
+            createRepository(json);
+        }
         if (json.getCreateServiceImpl()) {
             createService(json);
             createServiceImpl(json);
-        }
-        if (json.getCreateRepository()) {
-            createRepository(json);
         }
 
         return true;
@@ -48,10 +48,6 @@ public class JsonController {
     public Json getJsonFields(Json json) {
         List<String> listFields = new ArrayList<>();
         String jsonText = json.getText();
-
-        jsonText = jsonText.replaceAll("\\{", "").replace("}", "");
-
-        json.setClassName(jsonText.split("\":")[0].replace("\"", ""));
 
         String[] fields = jsonText.split(",");
 
@@ -78,6 +74,9 @@ public class JsonController {
         sb.append(generateGettersAndSetters(json));
         sb.append(closeCurlyBracket());
 
+        System.out.println(sb.toString());
+        saveToFile(sb, json.getPath(), json.getClassName()+"Entity");
+
         return true;
     }
 
@@ -96,6 +95,9 @@ public class JsonController {
         sb.append(generateFields(1, json));
         sb.append(generateGettersAndSetters(json));
         sb.append(closeCurlyBracket());
+
+        System.out.println(sb.toString());
+        saveToFile(sb, json.getPath(), json.getClassName()+"Model");
 
         return true;
     }
@@ -117,6 +119,9 @@ public class JsonController {
         sb.append(generateMethods(2, className));
         sb.append(closeCurlyBracket());
 
+        System.out.println(sb.toString());
+        saveToFile(sb, json.getPath(), json.getClassName() + "Repository");
+
         return true;
     }
 
@@ -137,6 +142,9 @@ public class JsonController {
         sb.append(generateMethods(3, className));
         sb.append(closeCurlyBracket());
 
+        System.out.println(sb.toString());
+        saveToFile(sb, json.getPath(), json.getClassName() + "Service");
+
         return true;
     }
 
@@ -156,6 +164,9 @@ public class JsonController {
         sb.append(generateClassName(4, className));
         sb.append(generateMethods(4, className));
         sb.append(closeCurlyBracket());
+
+        System.out.println(sb.toString());
+        saveToFile(sb, json.getPath(), json.getClassName() + "ServiceImpl");
 
         return true;
     }
@@ -195,6 +206,7 @@ public class JsonController {
             default:
                 break;
         }
+        sb.append("\n");
         return sb.toString();
     }
 
@@ -211,7 +223,7 @@ public class JsonController {
         switch (classType) {
             case 0:
                 sb.append("@Entity").append("\n");
-                sb.append("@Table(name = \"").append(className).append("\") \n");
+                sb.append("@Table(name = \"").append(firstLetterLowerCase(className)).append("\") \n");
                 break;
             case 2:
                 sb.append("@Repository").append("\n");
@@ -238,24 +250,24 @@ public class JsonController {
 
         switch (classType) {
             case 0:
-                sb.append("public class ").append(className).append("Entity \\{").append("\n");
+                sb.append("public class ").append(className).append("Entity {").append("\n");
                 break;
             case 1:
-                sb.append("public class ").append(className).append("Model \\{").append("\n");
+                sb.append("public class ").append(className).append("Model {").append("\n");
                 break;
             case 2:
-                sb.append("public interface ").append(className).append("Repository extends JpaRepository<").append(className).append("Entity, Long> \\{").append("\n");
+                sb.append("public interface ").append(className).append("Repository extends JpaRepository<").append(className).append("Entity, Long> {").append("\n");
                 break;
             case 3:
-                sb.append("public interface ").append(className).append("Service \\{").append("\n");
+                sb.append("public interface ").append(className).append("Service {").append("\n");
                 break;
             case 4:
-                sb.append("public class ").append(className).append("ServiceImpl implements ").append(className).append("Service \\{").append("\n");
+                sb.append("public class ").append(className).append("ServiceImpl implements ").append(className).append("Service {").append("\n");
                 break;
             default:
                 break;
         }
-
+        sb.append("\n");
         return sb.toString();
     }
 
@@ -280,7 +292,7 @@ public class JsonController {
                         sb.append("@Id \n @GeneratedValue(strategy = GenerationType.AUTO) \n private ").append(type).append(" ").append(fieldName).append("; \n");
                     } else {
                         sb.append("@Column(name = \"").append(removeCamelCaseField(fieldName)).append("\" , nullable = false) \n");
-                        sb.append("private ").append(type).append(" ").append(fieldName).append("; \n");
+                        sb.append("private ").append(type).append(" ").append(fieldName).append("; \n\n");
                     }
                 }
                 break;
@@ -294,7 +306,7 @@ public class JsonController {
             default:
                 break;
         }
-
+        sb.append("\n");
         return sb.toString();
     }
 
@@ -342,28 +354,28 @@ public class JsonController {
                 break;
             case 4:
                 sb.append(overrideAnnotation()).append("\n");
-                sb.append("public ").append("List<").append(className).append("> findAll() \\{").append("\n");
-                sb.append("return repository.findAll();").append("\n");
+                sb.append("public ").append("List<").append(className).append("> findAll() {").append("\n");
+                sb.append("  return repository.findAll();").append("\n");
                 sb.append(closeCurlyBracket()).append("\n\n");
 
                 sb.append(overrideAnnotation()).append("\n");
-                sb.append("public List<").append(className).append("> findById(Long id) \\{").append("\n\n");
-                sb.append("return repository.findById(id);").append("\n");
+                sb.append("public List<").append(className).append("> findById(Long id) {").append("\n");
+                sb.append("  return repository.findById(id);").append("\n");
                 sb.append(closeCurlyBracket()).append("\n\n");
 
                 sb.append(overrideAnnotation()).append("\n");
-                sb.append("public ").append(className).append(" add").append(className).append("(").append(className).append(" ").append(firstLetterLowerCase(className)).append(") \\{ \n");
-                sb.append("return repository.save(").append(firstLetterLowerCase(className)).append("); \n");
+                sb.append("public ").append(className).append(" add").append(className).append("(").append(className).append(" ").append(firstLetterLowerCase(className)).append(") { \n");
+                sb.append("  return repository.save(").append(firstLetterLowerCase(className)).append("); \n");
                 sb.append(closeCurlyBracket()).append("\n\n");
 
                 sb.append(overrideAnnotation()).append("\n");
-                sb.append("public ").append(className).append(" update").append(className).append("(").append(className).append(" ").append(firstLetterLowerCase(className)).append(") \\{ \n");
-                sb.append("return repository.save(").append(firstLetterLowerCase(className)).append("); \n");
+                sb.append("public ").append(className).append(" update").append(className).append("(").append(className).append(" ").append(firstLetterLowerCase(className)).append(") { \n");
+                sb.append("  return repository.save(").append(firstLetterLowerCase(className)).append("); \n");
                 sb.append(closeCurlyBracket()).append("\n\n");
 
                 sb.append(overrideAnnotation()).append("\n");
-                sb.append("public ").append(className).append(" remove").append(className).append("(Long id) \\{ \n");
-                sb.append("repository.deleteById(id);").append("\n");
+                sb.append("public ").append(className).append(" remove").append(className).append("(Long id) { \n");
+                sb.append("  repository.deleteById(id);").append("\n");
                 sb.append(closeCurlyBracket()).append("\n\n");
                 break;
         }
@@ -377,7 +389,7 @@ public class JsonController {
      * @return
      */
     public String getFieldType(String field) {
-        return field.split(":\"")[0].replace("\"", "");
+        return formatField(field.split(":")[0]);
     }
 
     /**
@@ -386,7 +398,16 @@ public class JsonController {
      * @return
      */
     public String getFieldName(String field) {
-        return field.split(":\"")[1].replace("\"", "");
+        return formatField(field.split(":")[1]);
+    }
+
+    public String formatField(String field) {
+        field = field.replace("\"", "");
+        field = field.replace("\n", "");
+        field = field.replaceAll("^ +| +$|( )+", "");
+        field = field.trim();
+        field = firstLetterLowerCase(field);
+        return field;
     }
 
     /**
@@ -412,8 +433,8 @@ public class JsonController {
      */
     public String generateGetters(String type, String fieldName) {
         StringBuilder sb = new StringBuilder();
-        sb.append("public ").append(type).append(" get").append(firstLetterUpperCase(fieldName)).append("() \\{ ").append("\n");
-        sb.append("return").append(fieldName).append("; \n");
+        sb.append("public ").append(type).append(" get").append(firstLetterUpperCase(fieldName)).append("() { ").append("\n");
+        sb.append("  return ").append(fieldName).append("; \n");
         sb.append("}");
         return sb.toString();
     }
@@ -426,8 +447,8 @@ public class JsonController {
      */
     public String generateSetters(String type, String fieldName) {
         StringBuilder sb = new StringBuilder();
-        sb.append("public ").append(type).append(" set").append(firstLetterUpperCase(fieldName)).append("(").append(type).append(" ").append(fieldName).append(") \\{ \n");
-        sb.append("this.").append(fieldName).append(" = ").append(fieldName).append("; \n");
+        sb.append("public void").append(" set").append(firstLetterUpperCase(fieldName)).append("(").append(type).append(" ").append(fieldName).append(") { \n");
+        sb.append("  this.").append(fieldName).append(" = ").append(fieldName).append("; \n");
         sb.append("}");
         return sb.toString();
     }
@@ -448,7 +469,7 @@ public class JsonController {
      * @return
      */
     public String firstLetterLowerCase(String fieldName) {
-        fieldName = fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1).toUpperCase();
+        fieldName = fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1).toLowerCase();
         return fieldName;
     }
 
@@ -479,4 +500,5 @@ public class JsonController {
         }
         return false;
     }
+
 }

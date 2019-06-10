@@ -22,6 +22,10 @@ public class View extends javax.swing.JFrame {
     public String getPath() {
         return jTextFieldPath.getText();
     }
+    
+    public String getClassName(){
+        return jTextFieldClassName.getText();
+    }
 
     public String getJsonText() {
         return jTextAreaJson.getText();
@@ -50,6 +54,14 @@ public class View extends javax.swing.JFrame {
         showErrorMessage("Please, select a path!");
         return false;
     }
+    
+    public Boolean validateClassName() {
+        if (!jTextFieldClassName.getText().isEmpty()) {
+            return true;
+        }
+        showErrorMessage("Please, fill the class name field");
+        return false;
+    }
 
     private boolean validateJsonField() {
         if (!jTextAreaJson.getText().isEmpty()) {
@@ -59,19 +71,11 @@ public class View extends javax.swing.JFrame {
         return false;
     }
 
-    //apply regex
-    private Boolean validateJsonStructure() {
-        if (jTextAreaJson.getText().contains("{") && jTextAreaJson.getText().contains("}")) {
-            return true;
-        }
-        showErrorMessage("The Json structure is wrong!");
-        return false;
-    }
-
     private void createFiles() {
         Json json = new Json();
 
         json.setPath(getPath());
+        json.setClassName(getClassName());
         json.setText(getJsonText());
         json.setCreateEntity(isEntitySelected());
         json.setCreateModel(isModelSelected());
@@ -111,6 +115,8 @@ public class View extends javax.swing.JFrame {
         jCheckBoxRepository = new javax.swing.JCheckBox();
         jButtonCreate = new javax.swing.JButton();
         jLabelName = new javax.swing.JLabel();
+        jLabelClass = new javax.swing.JLabel();
+        jTextFieldClassName = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -125,25 +131,26 @@ public class View extends javax.swing.JFrame {
         getContentPane().add(jButtonBrowse, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 50, -1, -1));
 
         jLabelJson.setText("JSON:");
-        getContentPane().add(jLabelJson, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, -1, -1));
+        getContentPane().add(jLabelJson, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, -1, -1));
 
         jTextAreaJson.setColumns(20);
         jTextAreaJson.setRows(5);
+        jTextAreaJson.setText("  \"String\": \"name\",\n  \"int\": \"Age\",\n  \"Boolean\": \"Status\"\n");
         jScrollPane1.setViewportView(jTextAreaJson);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 100, 350, 160));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 150, 350, 160));
 
         jCheckBoxEntity.setText("Entity");
-        getContentPane().add(jCheckBoxEntity, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 280, -1, -1));
+        getContentPane().add(jCheckBoxEntity, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 320, -1, -1));
 
         jCheckBoxModel.setText("Model");
-        getContentPane().add(jCheckBoxModel, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 280, -1, -1));
+        getContentPane().add(jCheckBoxModel, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 320, -1, -1));
 
         jCheckBoxServiceImpl.setText("Service/Impl");
-        getContentPane().add(jCheckBoxServiceImpl, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 280, -1, -1));
+        getContentPane().add(jCheckBoxServiceImpl, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 320, -1, -1));
 
         jCheckBoxRepository.setText("Repository");
-        getContentPane().add(jCheckBoxRepository, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 280, -1, -1));
+        getContentPane().add(jCheckBoxRepository, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 320, -1, -1));
 
         jButtonCreate.setText("Create");
         jButtonCreate.addActionListener(new java.awt.event.ActionListener() {
@@ -151,19 +158,25 @@ public class View extends javax.swing.JFrame {
                 jButtonCreateActionPerformed(evt);
             }
         });
-        getContentPane().add(jButtonCreate, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 320, -1, -1));
+        getContentPane().add(jButtonCreate, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 350, -1, -1));
 
         jLabelName.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         jLabelName.setText("CLASS CREATOR 2000 PLUS");
         getContentPane().add(jLabelName, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 20, -1, -1));
+
+        jLabelClass.setText("Class:");
+        getContentPane().add(jLabelClass, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 90, -1, -1));
+
+        jTextFieldClassName.setText("People");
+        getContentPane().add(jTextFieldClassName, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 90, 230, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonCreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCreateActionPerformed
         if (validatePath()) {
-            if (validateJsonField()) {
-                if (validateJsonStructure()) {
+            if (validateClassName()) {
+                if (validateJsonField()) {
                     createFiles();
                 }
             }
@@ -218,11 +231,13 @@ public class View extends javax.swing.JFrame {
     private javax.swing.JCheckBox jCheckBoxModel;
     private javax.swing.JCheckBox jCheckBoxRepository;
     private javax.swing.JCheckBox jCheckBoxServiceImpl;
+    private javax.swing.JLabel jLabelClass;
     private javax.swing.JLabel jLabelJson;
     private javax.swing.JLabel jLabelName;
     private javax.swing.JLabel jLabelPath;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextAreaJson;
+    private javax.swing.JTextField jTextFieldClassName;
     private javax.swing.JTextField jTextFieldPath;
     // End of variables declaration//GEN-END:variables
 
