@@ -2,7 +2,9 @@ package com.maxwell.classcreator.view;
 
 import com.maxwell.classcreator.control.JsonController;
 import com.maxwell.classcreator.model.Json;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileSystemView;
 
 /**
  *
@@ -19,11 +21,26 @@ public class View extends javax.swing.JFrame {
         initComponents();
     }
 
+    private void open() {
+        JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+        jfc.setDialogTitle("Choose a directory to save your files: ");
+        jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+        int returnValue = jfc.showSaveDialog(null);
+
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            if (jfc.getSelectedFile().isDirectory()) {
+               jTextFieldPath.setText(jfc.getSelectedFile().toString());
+            }
+        }
+
+    }
+
     public String getPath() {
         return jTextFieldPath.getText();
     }
-    
-    public String getClassName(){
+
+    public String getClassName() {
         return jTextFieldClassName.getText();
     }
 
@@ -54,7 +71,7 @@ public class View extends javax.swing.JFrame {
         showErrorMessage("Please, select a path!");
         return false;
     }
-    
+
     public Boolean validateClassName() {
         if (!jTextFieldClassName.getText().isEmpty()) {
             return true;
@@ -89,7 +106,7 @@ public class View extends javax.swing.JFrame {
     public void showErrorMessage(String message) {
         JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
-    
+
     public void showMessage(String message) {
         JOptionPane.showMessageDialog(null, message, "Success", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -128,6 +145,11 @@ public class View extends javax.swing.JFrame {
         getContentPane().add(jTextFieldPath, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 50, 240, -1));
 
         jButtonBrowse.setText("Browse");
+        jButtonBrowse.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonBrowseActionPerformed(evt);
+            }
+        });
         getContentPane().add(jButtonBrowse, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 50, -1, -1));
 
         jLabelJson.setText("JSON:");
@@ -182,6 +204,12 @@ public class View extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_jButtonCreateActionPerformed
+
+    private void jButtonBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBrowseActionPerformed
+
+        open();
+
+    }//GEN-LAST:event_jButtonBrowseActionPerformed
 
     /**
      * @param args the command line arguments
