@@ -247,6 +247,7 @@ public class View extends javax.swing.JFrame {
                 view.setLocationRelativeTo(null);
                 view.setTitle("Class creator");
                 view.setVisible(true);
+                
 
             }
         });

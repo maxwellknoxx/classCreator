@@ -24,6 +24,10 @@ public class tests {
         test = test.replace("(_)+", "");
         
         System.out.println(test);
+        
+       // "Long":"id";
+//"String":"name",
+//"String":"description"
 
     }
 

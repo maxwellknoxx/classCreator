@@ -162,6 +162,7 @@ public class JsonController {
         sb.append(generateImports(4));
         sb.append(generateClassAnotation(4, className));
         sb.append(generateClassName(4, className));
+        sb.append(generateAutowiredAnnotation(className));
         sb.append(generateMethods(4, className));
         sb.append(closeCurlyBracket());
 
@@ -191,11 +192,13 @@ public class JsonController {
                 break;
             case 2:
                 sb.append("import java.util.List;").append("\n");
+                sb.append("import java.util.Optional;").append("\n");
                 sb.append("import org.springframework.data.jpa.repository.JpaRepository;").append("\n");
                 sb.append("import org.springframework.stereotype.Repository;").append("\n");
                 break;
             case 3:
                 sb.append("import java.util.List;").append("\n");
+                sb.append("import java.util.Optional;").append("\n");
                 break;
             case 4:
                 sb.append("import java.util.List;").append("\n");
@@ -342,39 +345,39 @@ public class JsonController {
 
         switch (classType) {
             case 2:
-                sb.append("List<").append(className).append("> findAll();").append("\n\n");
-                sb.append("List<").append(className).append("> findById(Long id);").append("\n\n");
+                sb.append("List<").append(className).append("Entity> findAll();").append("\n\n");
+                sb.append("Optional<").append(className).append("Entity> findById(Long id);").append("\n\n");
                 break;
             case 3:
-                sb.append("List<").append(className).append("> findAll();").append("\n\n");
-                sb.append("List<").append(className).append("> findById(Long id);").append("\n\n");
-                sb.append(className).append(" add").append(className).append("(").append(className).append(" ").append(firstLetterLowerCase(className)).append("); \n\n");
-                sb.append(className).append(" update").append(className).append("(").append(className).append(" ").append(firstLetterLowerCase(className)).append("); \n\n");
-                sb.append(className).append(" remove").append(className).append("(Long id); \n\n");
+                sb.append("List<").append(className).append("Entity> findAll();").append("\n\n");
+                sb.append("Optional<").append(className).append("Entity> findById(Long id);").append("\n\n");
+                sb.append(className).append("Entity add").append(className).append("(").append(className).append("Entity ").append(firstLetterLowerCase(className)).append("); \n\n");
+                sb.append(className).append("Entity update").append(className).append("(").append(className).append("Entity ").append(firstLetterLowerCase(className)).append("); \n\n");
+                sb.append("void remove").append(className).append("(Long id); \n\n");
                 break;
             case 4:
                 sb.append(overrideAnnotation()).append("\n");
-                sb.append("public ").append("List<").append(className).append("> findAll() {").append("\n");
+                sb.append("public ").append("List<").append(className).append("Entity> findAll() {").append("\n");
                 sb.append("  return repository.findAll();").append("\n");
                 sb.append(closeCurlyBracket()).append("\n\n");
 
                 sb.append(overrideAnnotation()).append("\n");
-                sb.append("public List<").append(className).append("> findById(Long id) {").append("\n");
+                sb.append("public Optional<").append(className).append("Entity> findById(Long id) {").append("\n");
                 sb.append("  return repository.findById(id);").append("\n");
                 sb.append(closeCurlyBracket()).append("\n\n");
 
                 sb.append(overrideAnnotation()).append("\n");
-                sb.append("public ").append(className).append(" add").append(className).append("(").append(className).append(" ").append(firstLetterLowerCase(className)).append(") { \n");
+                sb.append("public ").append(className).append("Entity add").append(className).append("(").append(className).append("Entity ").append(firstLetterLowerCase(className)).append(") { \n");
                 sb.append("  return repository.save(").append(firstLetterLowerCase(className)).append("); \n");
                 sb.append(closeCurlyBracket()).append("\n\n");
 
                 sb.append(overrideAnnotation()).append("\n");
-                sb.append("public ").append(className).append(" update").append(className).append("(").append(className).append(" ").append(firstLetterLowerCase(className)).append(") { \n");
+                sb.append("public ").append(className).append("Entity update").append(className).append("(").append(className).append("Entity ").append(firstLetterLowerCase(className)).append(") { \n");
                 sb.append("  return repository.save(").append(firstLetterLowerCase(className)).append("); \n");
                 sb.append(closeCurlyBracket()).append("\n\n");
 
                 sb.append(overrideAnnotation()).append("\n");
-                sb.append("public ").append(className).append(" remove").append(className).append("(Long id) { \n");
+                sb.append("public void").append(" remove").append(className).append("(Long id) { \n");
                 sb.append("  repository.deleteById(id);").append("\n");
                 sb.append(closeCurlyBracket()).append("\n\n");
                 break;
@@ -471,6 +474,14 @@ public class JsonController {
     public String firstLetterLowerCase(String fieldName) {
         fieldName = fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1).toLowerCase();
         return fieldName;
+    }
+    
+    private String generateAutowiredAnnotation(String className) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("@Autowired").append("\n");
+        sb.append("private ").append(className).append("Repository repository; \n\n");
+       
+        return sb.toString();
     }
 
     /**
