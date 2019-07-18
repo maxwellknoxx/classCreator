@@ -1,40 +1,44 @@
 package com.maxwell.classcreator.control;
 
-import com.maxwell.classcreator.model.Json;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import com.maxwell.classcreator.model.Input;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Maxwell Knoxx - 06/2019
  */
-public class JsonController {
+public class InputController {
+
+    private final static Logger LOGGER = Logger.getLogger(InputController.class.getName());
 
     /**
      *
-     * @param json
+     * @param input
      * @return
      */
-    public Boolean generateFiles(Json json) {
+    public Boolean generateFiles(Input input) {
 
-        json = getJsonFields(json);
+        try {
+            input = getInputFields(input);
 
-        if (json.getCreateEntity()) {
-            createEntity(json);
-        }
-        if (json.getCreateModel()) {
-            createModel(json);
-        }
-        if (json.getCreateRepository()) {
-            createRepository(json);
-        }
-        if (json.getCreateServiceImpl()) {
-            createService(json);
-            createServiceImpl(json);
+            if (input.getCreateEntity()) {
+                createEntity(input);
+            }
+            if (input.getCreateModel()) {
+                createModel(input);
+            }
+            if (input.getCreateRepository()) {
+                createRepository(input);
+            }
+            if (input.getCreateServiceImpl()) {
+                createService(input);
+                createServiceImpl(input);
+            }
+        } catch (Exception e) {
+            FileController.createFile("Error -> InputController -> generateFiles" + e.getMessage(), "error", "txt");
         }
 
         return true;
@@ -42,40 +46,44 @@ public class JsonController {
 
     /**
      *
-     * @param json
+     * @param input
      * @return
      */
-    public Json getJsonFields(Json json) {
+    public Input getInputFields(Input input) {
         List<String> listFields = new ArrayList<>();
-        String jsonText = json.getText();
+        String inputText = input.getText();
 
-        String[] fields = jsonText.split(",");
+        String[] fields = inputText.split("\\n");
+
+        if (!validateInput(fields)) {
+            return null;
+        }
 
         listFields.addAll(Arrays.asList(fields));
 
-        json.setFields(listFields);
+        input.setFields(listFields);
 
-        return json;
+        return input;
     }
 
     /**
      * Class Type 0
      *
-     * @param json
+     * @param input
      * @return
      */
-    private Boolean createEntity(Json json) {
+    private Boolean createEntity(Input input) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(generateImports(0));
-        sb.append(generateClassAnotation(0, json.getClassName()));
-        sb.append(generateClassName(0, json.getClassName()));
-        sb.append(generateFields(0, json));
-        sb.append(generateGettersAndSetters(json));
+        sb.append(generateClassAnotation(0, input.getClassName()));
+        sb.append(generateClassName(0, input.getClassName()));
+        sb.append(generateFields(0, input));
+        sb.append(generateGettersAndSetters(input));
         sb.append(closeCurlyBracket());
 
         System.out.println(sb.toString());
-        saveToFile(sb, json.getPath(), json.getClassName()+"Entity");
+        FileController.createJavaFile(sb, input.getPath(), input.getClassName(), "Entity");
 
         return true;
     }
@@ -83,21 +91,21 @@ public class JsonController {
     /**
      * Class Type 1
      *
-     * @param json
+     * @param input
      * @return
      */
-    private Boolean createModel(Json json) {
+    private Boolean createModel(Input input) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(generateImports(1));
-        sb.append(generateClassAnotation(1, json.getClassName()));
-        sb.append(generateClassName(1, json.getClassName()));
-        sb.append(generateFields(1, json));
-        sb.append(generateGettersAndSetters(json));
+        sb.append(generateClassAnotation(1, input.getClassName()));
+        sb.append(generateClassName(1, input.getClassName()));
+        sb.append(generateFields(1, input));
+        sb.append(generateGettersAndSetters(input));
         sb.append(closeCurlyBracket());
 
         System.out.println(sb.toString());
-        saveToFile(sb, json.getPath(), json.getClassName()+"Model");
+        FileController.createJavaFile(sb, input.getPath(), input.getClassName(), "Model");
 
         return true;
     }
@@ -105,13 +113,13 @@ public class JsonController {
     /**
      * Class type 2
      *
-     * @param json
+     * @param input
      * @return
      */
-    private Boolean createRepository(Json json) {
+    private Boolean createRepository(Input input) {
         StringBuilder sb = new StringBuilder();
 
-        String className = json.getClassName();
+        String className = input.getClassName();
 
         sb.append(generateImports(2));
         sb.append(generateClassAnotation(2, className));
@@ -120,7 +128,7 @@ public class JsonController {
         sb.append(closeCurlyBracket());
 
         System.out.println(sb.toString());
-        saveToFile(sb, json.getPath(), json.getClassName() + "Repository");
+        FileController.createJavaFile(sb, input.getPath(), input.getClassName(), "Repository");
 
         return true;
     }
@@ -128,13 +136,13 @@ public class JsonController {
     /**
      * Class type 3
      *
-     * @param json
+     * @param input
      * @return
      */
-    private Boolean createService(Json json) {
+    private Boolean createService(Input input) {
         StringBuilder sb = new StringBuilder();
 
-        String className = json.getClassName();
+        String className = input.getClassName();
 
         sb.append(generateImports(3));
         sb.append(generateClassAnotation(3, className));
@@ -143,7 +151,7 @@ public class JsonController {
         sb.append(closeCurlyBracket());
 
         System.out.println(sb.toString());
-        saveToFile(sb, json.getPath(), json.getClassName() + "Service");
+        FileController.createJavaFile(sb, input.getPath(), input.getClassName(), "Service");
 
         return true;
     }
@@ -151,13 +159,13 @@ public class JsonController {
     /**
      * Class type 4
      *
-     * @param json
+     * @param input
      * @return
      */
-    private Boolean createServiceImpl(Json json) {
+    private Boolean createServiceImpl(Input input) {
         StringBuilder sb = new StringBuilder();
 
-        String className = json.getClassName();
+        String className = input.getClassName();
 
         sb.append(generateImports(4));
         sb.append(generateClassAnotation(4, className));
@@ -167,7 +175,7 @@ public class JsonController {
         sb.append(closeCurlyBracket());
 
         System.out.println(sb.toString());
-        saveToFile(sb, json.getPath(), json.getClassName() + "ServiceImpl");
+        FileController.createJavaFile(sb, input.getPath(), input.getClassName(), "ServiceImpl");
 
         return true;
     }
@@ -209,7 +217,9 @@ public class JsonController {
             default:
                 break;
         }
+
         sb.append("\n");
+
         return sb.toString();
     }
 
@@ -277,10 +287,10 @@ public class JsonController {
     /**
      *
      * @param classType 0 - Entity, 1 - Model
-     * @param json
+     * @param input
      * @return
      */
-    public String generateFields(int classType, Json json) {
+    public String generateFields(int classType, Input input) {
         StringBuilder sb = new StringBuilder();
 
         String type;
@@ -288,7 +298,7 @@ public class JsonController {
 
         switch (classType) {
             case 0:
-                for (String field : json.getFields()) {
+                for (String field : input.getFields()) {
                     type = getFieldType(field);
                     fieldName = getFieldName(field);
                     if ("id".equals(fieldName)) {
@@ -300,7 +310,7 @@ public class JsonController {
                 }
                 break;
             case 1:
-                for (String field : json.getFields()) {
+                for (String field : input.getFields()) {
                     type = getFieldType(field);
                     fieldName = getFieldName(field);
                     sb.append("private ").append(type).append(" ").append(fieldName).append("; \n");
@@ -315,16 +325,16 @@ public class JsonController {
 
     /**
      *
-     * @param json
+     * @param input
      * @return
      */
-    public String generateGettersAndSetters(Json json) {
+    public String generateGettersAndSetters(Input input) {
         StringBuilder sb = new StringBuilder();
 
         String type;
         String fieldName;
 
-        for (String field : json.getFields()) {
+        for (String field : input.getFields()) {
             type = getFieldType(field);
             fieldName = getFieldName(field);
             sb.append(generateGetters(type, fieldName)).append("\n\n");
@@ -475,12 +485,12 @@ public class JsonController {
         fieldName = fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1).toLowerCase();
         return fieldName;
     }
-    
+
     private String generateAutowiredAnnotation(String className) {
         StringBuilder sb = new StringBuilder();
         sb.append("@Autowired").append("\n");
         sb.append("private ").append(className).append("Repository repository; \n\n");
-       
+
         return sb.toString();
     }
 
@@ -500,16 +510,19 @@ public class JsonController {
         return "}";
     }
 
-    public Boolean saveToFile(StringBuilder sb, String path, String className) {
+    private boolean validateInput(String[] fields) {
+
         try {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(path + "/" + className + ".java"))) {
-                writer.write(sb.toString());
+            for (String field : fields) {
+                if (!field.contains(":")) {
+                    return false;
+                }
             }
-            return true;
-        } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
+        } catch (Exception e) {
+            FileController.createFile("Error: InputController -> " + e.getMessage(), "error", "txt");
         }
-        return false;
+
+        return true;
     }
 
 }

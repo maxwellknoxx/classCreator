@@ -3,10 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/Macbook/NetBeansProjects/ClassCreator/src/com/maxwell/classcreator/control/JsonController.java</file>
             <file>file:/Users/Macbook/NetBeansProjects/ClassCreator/src/com/maxwell/classcreator/view/View.java</file>
+            <file>file:/Users/Macbook/NetBeansProjects/ClassCreator/src/com/maxwell/classcreator/control/InputController.java</file>
             <file>file:/Users/Macbook/NetBeansProjects/ClassCreator/src/com/maxwell/classcreator/tests.java</file>
-            <file>file:/Users/Macbook/NetBeansProjects/ClassCreator/src/com/maxwell/classcreator/ClassCreator.java</file>
         </group>
     </open-files>
 </project-private>

@@ -6,7 +6,7 @@ import java.util.List;
  *
  * @author Maxwell Knoxx - 06/2019
  */
-public class Json {
+public class Input {
 
     private String text;
     private String path;

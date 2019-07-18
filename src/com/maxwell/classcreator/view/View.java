@@ -1,9 +1,9 @@
 package com.maxwell.classcreator.view;
 
-import com.maxwell.classcreator.control.JsonController;
-import com.maxwell.classcreator.model.Json;
+import com.maxwell.classcreator.control.InputController;
+import com.maxwell.classcreator.control.MessageController;
+import com.maxwell.classcreator.model.Input;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileSystemView;
 
 /**
@@ -11,8 +11,6 @@ import javax.swing.filechooser.FileSystemView;
  * @author Maxwell Knoxx - 06/2019
  */
 public class View extends javax.swing.JFrame {
-
-    JsonController jsonController = new JsonController();
 
     /**
      * Creates new form view
@@ -23,92 +21,86 @@ public class View extends javax.swing.JFrame {
 
     private void open() {
         JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-        jfc.setDialogTitle("Choose a directory to save your files: ");
+        jfc.setDialogTitle("Please, select our root project folder!");
         jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         int returnValue = jfc.showSaveDialog(null);
 
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             if (jfc.getSelectedFile().isDirectory()) {
-               jTextFieldPath.setText(jfc.getSelectedFile().toString());
+                jTextFieldPath.setText(jfc.getSelectedFile().toString());
+                System.out.println(jfc.getSelectedFile().toString());
             }
         }
 
     }
 
-    public String getPath() {
+    private String getPath() {
         return jTextFieldPath.getText();
     }
 
-    public String getClassName() {
+    private String getClassName() {
         return jTextFieldClassName.getText();
     }
 
-    public String getJsonText() {
-        return jTextAreaJson.getText();
+    private String getJsonText() {
+        return jTextAreaInput.getText();
     }
 
-    public Boolean isEntitySelected() {
+    private Boolean isEntitySelected() {
         return jCheckBoxEntity.isSelected();
     }
 
-    public Boolean isModelSelected() {
+    private Boolean isModelSelected() {
         return jCheckBoxModel.isSelected();
     }
 
-    public Boolean isServiceImplSelected() {
+    private Boolean isServiceImplSelected() {
         return jCheckBoxServiceImpl.isSelected();
     }
 
-    public Boolean isRepositorySelected() {
+    private Boolean isRepositorySelected() {
         return jCheckBoxRepository.isSelected();
     }
 
-    public Boolean validatePath() {
+    private Boolean pathFieldIsNotEmpty() {
         if (!jTextFieldPath.getText().isEmpty()) {
             return true;
         }
-        showErrorMessage("Please, select a path!");
+        MessageController.showErrorMessage("Please, select a path!");
         return false;
     }
 
-    public Boolean validateClassName() {
+    private Boolean classNameFieldIsNotEmpty() {
         if (!jTextFieldClassName.getText().isEmpty()) {
             return true;
         }
-        showErrorMessage("Please, fill the class name field");
+        MessageController.showErrorMessage("Please, fill the class name field");
         return false;
     }
 
-    private boolean validateJsonField() {
-        if (!jTextAreaJson.getText().isEmpty()) {
+    private boolean inputFieldIsNotEmpty() {
+        if (!jTextAreaInput.getText().isEmpty()) {
             return true;
         }
-        showErrorMessage("Please, fill the Json field");
+        MessageController.showErrorMessage("Please, fill the Json field");
         return false;
     }
 
     private void createFiles() {
-        Json json = new Json();
+        InputController inputController = new InputController();
+        Input input = new Input();
 
-        json.setPath(getPath());
-        json.setClassName(getClassName());
-        json.setText(getJsonText());
-        json.setCreateEntity(isEntitySelected());
-        json.setCreateModel(isModelSelected());
-        json.setCreateServiceImpl(isServiceImplSelected());
-        json.setCreateRepository(isRepositorySelected());
+        input.setPath(getPath());
+        input.setClassName(getClassName());
+        input.setText(getJsonText());
+        input.setCreateEntity(isEntitySelected());
+        input.setCreateModel(isModelSelected());
+        input.setCreateServiceImpl(isServiceImplSelected());
+        input.setCreateRepository(isRepositorySelected());
 
-        jsonController.generateFiles(json);
-        showMessage("the files were created!");
-    }
-
-    public void showErrorMessage(String message) {
-        JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
-    }
-
-    public void showMessage(String message) {
-        JOptionPane.showMessageDialog(null, message, "Success", JOptionPane.INFORMATION_MESSAGE);
+        inputController.generateFiles(input);
+        MessageController.showMessage("The files were created!");
     }
 
     /**
@@ -123,9 +115,9 @@ public class View extends javax.swing.JFrame {
         jLabelPath = new javax.swing.JLabel();
         jTextFieldPath = new javax.swing.JTextField();
         jButtonBrowse = new javax.swing.JButton();
-        jLabelJson = new javax.swing.JLabel();
+        jLabelInput = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextAreaJson = new javax.swing.JTextArea();
+        jTextAreaInput = new javax.swing.JTextArea();
         jCheckBoxEntity = new javax.swing.JCheckBox();
         jCheckBoxModel = new javax.swing.JCheckBox();
         jCheckBoxServiceImpl = new javax.swing.JCheckBox();
@@ -152,13 +144,13 @@ public class View extends javax.swing.JFrame {
         });
         getContentPane().add(jButtonBrowse, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 50, -1, -1));
 
-        jLabelJson.setText("JSON:");
-        getContentPane().add(jLabelJson, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, -1, -1));
+        jLabelInput.setText("Input");
+        getContentPane().add(jLabelInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, -1, -1));
 
-        jTextAreaJson.setColumns(20);
-        jTextAreaJson.setRows(5);
-        jTextAreaJson.setText("  \"String\": \"name\",\n  \"int\": \"Age\",\n  \"Boolean\": \"Status\"\n");
-        jScrollPane1.setViewportView(jTextAreaJson);
+        jTextAreaInput.setColumns(20);
+        jTextAreaInput.setRows(5);
+        jTextAreaInput.setText("\"String\": \"value\",\n\"String\": \"value\",\n\"String\": \"value\"\n");
+        jScrollPane1.setViewportView(jTextAreaInput);
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 150, 350, 160));
 
@@ -196,9 +188,9 @@ public class View extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonCreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCreateActionPerformed
-        if (validatePath()) {
-            if (validateClassName()) {
-                if (validateJsonField()) {
+        if (pathFieldIsNotEmpty()) {
+            if (classNameFieldIsNotEmpty()) {
+                if (inputFieldIsNotEmpty()) {
                     createFiles();
                 }
             }
@@ -206,9 +198,7 @@ public class View extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonCreateActionPerformed
 
     private void jButtonBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBrowseActionPerformed
-
         open();
-
     }//GEN-LAST:event_jButtonBrowseActionPerformed
 
     /**
@@ -247,8 +237,6 @@ public class View extends javax.swing.JFrame {
                 view.setLocationRelativeTo(null);
                 view.setTitle("Class creator");
                 view.setVisible(true);
-                
-
             }
         });
     }
@@ -261,11 +249,11 @@ public class View extends javax.swing.JFrame {
     private javax.swing.JCheckBox jCheckBoxRepository;
     private javax.swing.JCheckBox jCheckBoxServiceImpl;
     private javax.swing.JLabel jLabelClass;
-    private javax.swing.JLabel jLabelJson;
+    private javax.swing.JLabel jLabelInput;
     private javax.swing.JLabel jLabelName;
     private javax.swing.JLabel jLabelPath;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextAreaJson;
+    private javax.swing.JTextArea jTextAreaInput;
     private javax.swing.JTextField jTextFieldClassName;
     private javax.swing.JTextField jTextFieldPath;
     // End of variables declaration//GEN-END:variables

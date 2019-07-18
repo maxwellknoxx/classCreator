@@ -5,13 +5,6 @@
  */
 package com.maxwell.classcreator;
 
-import com.maxwell.classcreator.control.JsonController;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 /**
  *
  * @author Macbook
@@ -19,15 +12,9 @@ import java.util.List;
 public class tests {
 
     public static void main(String args[]) {
-
-        String test = "public   String set name(  String  name) {";
-        test = test.replace("(_)+", "");
+///Users/Macbook/Documents/Projects/myCollection/myCollection/src
         
-        System.out.println(test);
-        
-       // "Long":"id";
-//"String":"name",
-//"String":"description"
+        System.out.println(System.getProperty("user.home"));
 
     }
 
